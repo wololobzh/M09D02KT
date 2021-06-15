@@ -7,6 +7,13 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import fr.eni.roomdemonstration.dao.PersonneDao
 import fr.eni.roomdemonstration.model.Personne
+import java.util.concurrent.Executors
+
+private val IO_EXECUTOR = Executors.newSingleThreadExecutor()
+
+fun ioThread(f : () -> Unit) {
+    IO_EXECUTOR.execute(f)
+}
 
 @Database(entities = arrayOf(Personne::class), version = 1)
 abstract class AppDatabase : RoomDatabase() {
@@ -28,9 +35,16 @@ abstract class AppDatabase : RoomDatabase() {
                         .addCallback(object : RoomDatabase.Callback() {
                             override fun onCreate(db: SupportSQLiteDatabase) {
                                 super.onCreate(db)
-                                var dao = INSTANCE?.personneDao();
-                                dao?.insert(Personne(0, "Cosson", "Anthony"))
-                                dao?.insert(Personne(0, "Cosson", "Nicolas"))
+                                ioThread {
+                                    var dao = INSTANCE?.personneDao();
+                                    dao?.insert(Personne(0,"Cosson","Anthony"))
+                                    dao?.insert(Personne(0,"Cosson","Nicolas"))
+                                    dao?.insert(Personne(0,"Cosson","Sylvie"))
+                                    dao?.insert(Personne(0,"Cosson","Dominique"))
+                                    dao?.insert(Personne(0,"Cosson","Leïla"))
+                                    dao?.insert(Personne(0,"Cosson","Michel"))
+                                    dao?.insert(Personne(0,"Cosson","Claudine"))
+                                }
                             }
                         })
                         .build()
